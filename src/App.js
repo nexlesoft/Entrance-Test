@@ -34,10 +34,6 @@ const PhotoGallery = () => {
 		}
 	};
 
-	useEffect(() => {
-		fetchData();
-	}, [page]);
-
 	const openNewTab = (path) => {
 		const newWindow = window.open(
 			`${DOMAIN_NAME}/${path}`,
@@ -46,6 +42,11 @@ const PhotoGallery = () => {
 		);
 		if (newWindow) newWindow.opener = null;
 	};
+
+	useEffect(() => {
+		fetchData();
+	}, [page]);
+
 	return (
 		<div id="scrollableDiv">
 			<InfiniteScroll
@@ -60,7 +61,11 @@ const PhotoGallery = () => {
 			>
 				{data?.map((item) => (
 					<div style={{ display: 'flex', justifyContent: 'center' }}>
-						<Grid container sx={{ width: '40%', height: 200 }}>
+						<Grid
+							container
+							sx={{ width: '40%', height: 200, cursor: 'pointer' }}
+							onClick={() => openNewTab(item.node.path)}
+						>
 							<Grid
 								xs={4}
 								sx={{
@@ -68,7 +73,6 @@ const PhotoGallery = () => {
 									justifyContent: 'center',
 									alignItems: 'center',
 								}}
-								onClick={() => openNewTab(item.node.path)}
 							>
 								<CardMedia
 									component="img"
