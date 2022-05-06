@@ -58,8 +58,11 @@ const PhotoGallery = () => {
 				scrollableTarget="scrollableDiv"
 				scrollThreshold={0.7}
 			>
-				{data?.map((item) => (
-					<div style={{ display: 'flex', justifyContent: 'center' }}>
+				{data?.map((item, index) => (
+					<div
+						key={index}
+						style={{ display: 'flex', justifyContent: 'center' }}
+					>
 						<Grid
 							container
 							sx={{ width: '40%', height: 200, cursor: 'pointer' }}
