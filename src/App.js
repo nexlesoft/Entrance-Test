@@ -9,32 +9,43 @@ import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Grid } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
+import AlertTitle from '@mui/material/AlertTitle';
 const PhotoGallery = () => {
 	const API_URL = 'https://www.pinkvilla.com/photo-gallery-feed-page';
-	const DOMAIN_NAME = 'https://www.pinkvilla.com/';
+	const DOMAIN_NAME = 'https://www.pinkvilla.com';
 
 	const [data, setData] = useState([]);
 	const [page, setPage] = useState(0);
 	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
 
 	const fetchData = async () => {
 		setLoading(true);
 
 		try {
 			const { data: response } = await axios.get(`${API_URL}/page/${page}`);
-			const newData = data.concat(response.nodes);
-			setData(newData);
+			setData(data.concat(response.nodes));
 		} catch (error) {
-			console.error(error.message);
+			setError(error.message);
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	useEffect(() => {
 		fetchData();
 	}, [page]);
 
+	const openNewTab = (path) => {
+		const newWindow = window.open(
+			`${DOMAIN_NAME}/${path}`,
+			'_blank',
+			'noopener,noreferrer'
+		);
+		if (newWindow) newWindow.opener = null;
+	};
 	return (
 		<div id="scrollableDiv">
 			<InfiniteScroll
@@ -45,7 +56,7 @@ const PhotoGallery = () => {
 				}}
 				hasMore={true}
 				scrollableTarget="scrollableDiv"
-				scrollThreshold={0.9}
+				scrollThreshold={0.7}
 			>
 				{data?.map((item) => (
 					<div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -57,6 +68,7 @@ const PhotoGallery = () => {
 									justifyContent: 'center',
 									alignItems: 'center',
 								}}
+								onClick={() => openNewTab(item.node.path)}
 							>
 								<CardMedia
 									component="img"
@@ -94,6 +106,12 @@ const PhotoGallery = () => {
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<CircularProgress />
 					</Box>
+				)}
+				{error && (
+					<Alert severity="error">
+						<AlertTitle>Error</AlertTitle>
+						{error}
+					</Alert>
 				)}
 			</InfiniteScroll>
 		</div>
