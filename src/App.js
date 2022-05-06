@@ -8,79 +8,94 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { Grid } from '@mui/material';
 const PhotoGallery = () => {
-	const theme = useTheme();
 	const [data, setData] = useState([]);
 
 	const [page, setPage] = useState(0);
-	const listInnerRef = useRef();
 
 	const API_URL = 'https://www.pinkvilla.com/photo-gallery-feed-page';
-
+	const DOMAIN_NAME = 'https://www.pinkvilla.com/';
+	const fetchData = async () => {
+		try {
+			const { data: response } = await axios.get(`${API_URL}/page/${page}`);
+			const newData = data.concat(response.nodes);
+			setData(newData);
+		} catch (error) {
+			console.error(error.message);
+		}
+	};
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const { data: response } = await axios.get(`${API_URL}/page/${page}`);
-				const newData = data.concat(response.nodes);
-				setData(newData);
-			} catch (error) {
-				console.error(error.message);
-			}
-		};
 		fetchData();
 	}, [page]);
 
-	useEffect(() => {
-		window.addEventListener('scroll', handleScroll);
-	}, [data.length]);
-
-	const handleScroll = (e) => {
-		if (listInnerRef.current) {
-			const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-			if (scrollTop + clientHeight - 1 === scrollHeight) {
-				const nextpage = page + 1;
-				setPage(nextpage);
-			}
-		}
-	};
 	return (
-		<div id="list" onScroll={handleScroll} ref={listInnerRef}>
-			{data?.map((item) => (
-				<div style={{ display: 'flex', justifyContent: 'center' }}>
-					<Card
-						sx={{
-							display: 'flex',
-							width: '50%',
-							alignItems: 'center',
-						}}
-					>
-						<CardMedia
-							component="img"
-							sx={{ width: 151 }}
-							image="https://ps-attachments.s3.amazonaws.com/cc810a17-c903-405a-b914-be7622637dc2/ixTAUT5DNBKQzZaBAixIkA.jpg"
-							alt="Live from space album cover"
-						/>
-						<Box sx={{ display: 'flex', flexDirection: 'column' }}>
-							<CardContent sx={{ flex: '1 0 auto' }}>
-								<Typography component="div" variant="h5">
-									{item.node.title}
-								</Typography>
-								<Typography
-									variant="subtitle1"
-									color="text.secondary"
-									component="div"
+		<div id="scrollableDiv">
+			<InfiniteScroll
+				// inverse
+				dataLength={data.length}
+				next={() => {
+					console.log('herreee');
+					setPage(page + 1);
+				}}
+				hasMore={true}
+				scrollableTarget="scrollableDiv"
+				scrollThreshold={0.9}
+			>
+				{data?.map((item) => (
+					<div style={{ display: 'flex', justifyContent: 'center' }}>
+						<Card
+							sx={{
+								display: 'flex',
+								width: '50%',
+								height: 200,
+								alignItems: 'center',
+							}}
+						>
+							<Grid container>
+								<Grid
+									xs={4}
+									sx={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
 								>
-									{item.node.path}
-								</Typography>
-							</CardContent>
-							<Box
-								sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}
-							></Box>
-						</Box>
-					</Card>
-				</div>
-			))}
+									<CardMedia
+										component="img"
+										sx={{ width: 250, height: 180, borderRadius: 10 }}
+										image={`${DOMAIN_NAME}/${item.node.field_photo_image_section}`}
+										alt="Live from space album cover"
+									/>
+								</Grid>
+								<Grid xs={8}>
+									<Box sx={{ display: 'flex', flexDirection: 'column' }}>
+										<CardContent sx={{ flex: '1 0 auto' }}>
+											<Typography component="div" variant="h5">
+												{item.node.title}
+											</Typography>
+											<Typography
+												variant="subtitle1"
+												color="text.secondary"
+												component="div"
+											></Typography>
+										</CardContent>
+										<Box
+											sx={{
+												display: 'flex',
+												alignItems: 'center',
+												pl: 1,
+												pb: 1,
+											}}
+										></Box>
+									</Box>
+								</Grid>
+							</Grid>
+						</Card>
+					</div>
+				))}
+			</InfiniteScroll>
 		</div>
 	);
 };
