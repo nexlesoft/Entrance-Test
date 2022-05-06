@@ -10,8 +10,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { Grid } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-
 import AlertTitle from '@mui/material/AlertTitle';
+
 const PhotoGallery = () => {
 	const API_URL = 'https://www.pinkvilla.com/photo-gallery-feed-page';
 	const DOMAIN_NAME = 'https://www.pinkvilla.com';
@@ -23,7 +23,6 @@ const PhotoGallery = () => {
 
 	const fetchData = async () => {
 		setLoading(true);
-
 		try {
 			const { data: response } = await axios.get(`${API_URL}/page/${page}`);
 			setData(data.concat(response.nodes));
